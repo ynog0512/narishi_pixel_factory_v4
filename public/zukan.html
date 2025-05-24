@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>マイピクセル野菜図鑑</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK（CDN） -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBRu_AJNnUsqrbSmoLkbrCSGMlQbsS4T6Q",
+      authDomain: "narishi-pixel-factory-v4-414e7.firebaseapp.com",
+      projectId: "narishi-pixel-factory-v4-414e7",
+      storageBucket: "narishi-pixel-factory-v4-414e7.appspot.com",
+      messagingSenderId: "708754818079",
+      appId: "1:708754818079:web:5f76501f37855a705ac12a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.getDocs = getDocs;
+    window.collection = collection;
+    window.query = query;
+    window.orderBy = orderBy;
+    window.limit = limit;
+  </script>
+</head>
+<body>
+  <h1>マイピクセル野菜図鑑</h1>
+  <div class="button-group">
+    <a href="index.html">← 戻る</a>
+  </div>
+
+  <div id="zukanContainer" class="zukan-wrapper"></div>
+
+  <script type="module">
+    const typeOrder = ["tomato", "eggplant", "green pepper", "kanpyo", "carrot", "pumpkin", "turnip"];
+    const typeLabels = {
+      "tomato": "🍅 Tomato",
+      "eggplant": "🍆 Eggplant",
+      "green pepper": "🫑 Green Pepper",
+      "kanpyo": "🎋 Kanpyo",
+      "carrot": "🥕 Carrot",
+      "pumpkin": "🎃 Pumpkin",
+      "turnip": "🧅 Turnip"
+    };
+
+    const container = document.getElementById("zukanContainer");
+    const q = window.query(window.collection(window.db, "zukan"), window.orderBy("date", "desc"), window.limit(100));
+    const snapshot = await window.getDocs(q);
+
+    const entriesByType = {};
+
+    snapshot.forEach(doc => {
+      const entry = doc.data();
+      if (!entriesByType[entry.type]) entriesByType[entry.type] = [];
+      entriesByType[entry.type].push(entry);
+    });
+
+    for (const type of typeOrder) {
+      const entries = entriesByType[type];
+      if (!entries) continue;
+
+      const heading = document.createElement("h2");
+      heading.textContent = typeLabels[type] || type;
+      container.appendChild(heading);
+
+      entries.forEach(entry => {
+        const card = document.createElement("div");
+        card.className = "zukan-card";
+
+        const img = document.createElement("img");
+        img.src = entry.image;
+
+        const name = document.createElement("div");
+        name.textContent = entry.name;
+
+        const date = document.createElement("div");
+        date.textContent = entry.date;
+
+        const typeDiv = document.createElement("div");
+        typeDiv.innerHTML = `<span class="label">type /</span><span class="value">${entry.type}</span>`;
+
+        const serial = document.createElement("div");
+        serial.textContent = entry.serial;
+
+        card.appendChild(img);
+        card.appendChild(name);
+        card.appendChild(date);
+        card.appendChild(typeDiv);
+        card.appendChild(serial);
+
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
