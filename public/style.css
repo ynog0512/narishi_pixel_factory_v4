@@ -69,10 +69,81 @@ canvas {
   border: 1px dashed #bbb;
 }
 
-/* 🔽 キャラ名・日付・シリアル用の追加スタイル */
+/* キャラ名・日付・シリアルのスタイル */
 .info-text {
   font-size: 1rem;
   color: #555;
   margin-top: 4px;
+  font-weight: bold;
+}
+
+/* 図鑑のラッパー */
+.zukan-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 8px;
+}
+
+/* 図鑑のカードスタイル（スマホ縦でも3列！） */
+.zukan-card {
+  flex: 0 1 calc(33.33% - 10px);
+  max-width: 120px;
+  min-width: 100px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.zukan-card:hover {
+  transform: scale(1.05);
+}
+
+.zukan-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+/* 画面が小さくても3列キープ */
+@media (max-width: 480px) {
+  .zukan-card {
+    flex: 0 1 calc(33.33% - 8px);
+    max-width: 100px;
+    font-size: 11px;
+  }
+}
+
+.zukan-button {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #a78bfa;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.zukan-button:hover {
+  background-color: #8b5cf6;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: #777;
+  margin-right: 2px;
+}
+
+.value {
+  font-size: 1rem;
   font-weight: bold;
 }
