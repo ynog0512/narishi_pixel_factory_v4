@@ -6,18 +6,17 @@
   <title>なりし専用ピクセルファクトリー</title>
   <link rel="stylesheet" href="style.css" />
 
-  <!-- 🔽 ここからPWA対応追記 -->
+  <!-- 🔽 PWA対応 -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#a78bfa" />
   <link rel="apple-touch-icon" href="assets/icon/icon192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <!-- 🔼 ここまでPWA対応追記 -->
 </head>
 
 <!-- Firebase SDK 読み込み＆初期化 -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBRu_AJNnUsqrbSmoLkbrCSGMlQbsS4T6Q",
@@ -31,6 +30,8 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   window.db = db;
+  window.addDoc = addDoc;
+  window.collection = collection;
 </script>
 
 <body>
@@ -43,12 +44,13 @@
   <div class="button-group">
     <button onclick="generatePixelArt()">ピクセル野菜を収穫する</button>
     <button onclick="copyPostText()">投稿テキストをコピー</button>
+    <a href="zukan.html" class="zukan-button">マイピクセル野菜図鑑をひらく</a>
   </div>
 
-  <!-- ✅ 生成情報を表示するブロック -->
   <div id="infoBox">
     <p id="characterName" class="info-text"></p>
     <p id="generatedDate" class="info-text"></p>
+    <p id="characterType" class="info-text"></p>
     <p id="serialNumber" class="info-text"></p>
     <p id="hashtagBlock" class="note"></p>
   </div>
