@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>マイピクセル野菜図鑑</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .switch-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+  </style>
 
   <!-- Firebase SDK（CDN） -->
   <script type="module">
@@ -36,6 +44,11 @@
     <a href="index.html">← 戻る</a>
   </div>
 
+  <div class="switch-buttons">
+    <button onclick="renderView('serial')">シリアル順で表示</button>
+    <button onclick="renderView('type')">種族順で表示</button>
+  </div>
+
   <div id="zukanContainer" class="zukan-wrapper"></div>
 
   <script type="module">
@@ -62,53 +75,74 @@
     };
 
     const container = document.getElementById("zukanContainer");
+
     const q = window.query(window.collection(window.db, "zukan"), window.orderBy("date", "desc"), window.limit(100));
     const snapshot = await window.getDocs(q);
-
-    const entriesByType = {};
+    const entries = [];
 
     snapshot.forEach(doc => {
-      const entry = doc.data();
-      if (!entriesByType[entry.type]) entriesByType[entry.type] = [];
-      entriesByType[entry.type].push(entry);
+      entries.push(doc.data());
     });
 
-    for (const type of typeOrder) {
-      const entries = entriesByType[type];
-      if (!entries) continue;
+    window.renderView = function(mode) {
+      container.innerHTML = "";
+      if (mode === "serial") {
+        const sorted = [...entries].sort((a, b) => {
+          const numA = parseInt(a.serial.replace("#", ""));
+          const numB = parseInt(b.serial.replace("#", ""));
+          return numA - numB;
+        });
 
-      const heading = document.createElement("h2");
-      heading.textContent = typeLabels[type] || type;
-      container.appendChild(heading);
+        sorted.forEach(entry => addCard(entry));
+      } else if (mode === "type") {
+        const grouped = {};
+        entries.forEach(entry => {
+          if (!grouped[entry.type]) grouped[entry.type] = [];
+          grouped[entry.type].push(entry);
+        });
 
-      entries.forEach(entry => {
-        const card = document.createElement("div");
-        card.className = "zukan-card";
+        for (const type of typeOrder) {
+          const group = grouped[type];
+          if (!group) continue;
 
-        const img = document.createElement("img");
-        img.src = entry.image;
+          const heading = document.createElement("h2");
+          heading.textContent = typeLabels[type] || type;
+          container.appendChild(heading);
 
-        const name = document.createElement("div");
-        name.textContent = entry.name;
+          group.forEach(entry => addCard(entry));
+        }
+      }
+    };
 
-        const date = document.createElement("div");
-        date.textContent = entry.date;
+    function addCard(entry) {
+      const card = document.createElement("div");
+      card.className = "zukan-card";
 
-        const typeDiv = document.createElement("div");
-        typeDiv.innerHTML = `<span class="label">type /</span><span class="value">${entry.type}</span>`;
+      const img = document.createElement("img");
+      img.src = entry.image;
 
-        const serial = document.createElement("div");
-        serial.textContent = entry.serial;
+      const name = document.createElement("div");
+      name.textContent = entry.name;
 
-        card.appendChild(img);
-        card.appendChild(name);
-        card.appendChild(date);
-        card.appendChild(typeDiv);
-        card.appendChild(serial);
+      const date = document.createElement("div");
+      date.textContent = entry.date;
 
-        container.appendChild(card);
-      });
+      const typeDiv = document.createElement("div");
+      typeDiv.innerHTML = `<span class="label">type /</span><span class="value">${entry.type}</span>`;
+
+      const serial = document.createElement("div");
+      serial.textContent = entry.serial;
+
+      card.appendChild(img);
+      card.appendChild(name);
+      card.appendChild(date);
+      card.appendChild(typeDiv);
+      card.appendChild(serial);
+
+      container.appendChild(card);
     }
+
+    renderView("type");
   </script>
 </body>
 </html>
