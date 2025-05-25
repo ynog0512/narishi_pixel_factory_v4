@@ -1,28 +1,6 @@
-// プレフィックス・サフィックス：造語風100種ずつ
-const prefixes = [
-  "Zog", "Ble", "Rib", "Tru", "Cud", "Nog", "Plix", "Frub", "Snar", "Jib",
-  "Brum", "Glim", "Wob", "Dro", "Trop", "Vib", "Flim", "Drub", "Glop", "Nek",
-  "Spro", "Zub", "Klim", "Grib", "Vrop", "Snub", "Wlim", "Nop", "Crub", "Jub",
-  "Grop", "Twib", "Thrum", "Plob", "Krop", "Frop", "Brib", "Swob", "Grum", "Clip",
-  "Blub", "Snib", "Plum", "Trob", "Grob", "Drob", "Flub", "Nub", "Zlim", "Twop",
-  "Vlim", "Jrip", "Slom", "Crip", "Thob", "Wrop", "Zrip", "Klom", "Blob", "Frim",
-  "Grib", "Zrom", "Blam", "Twim", "Snim", "Plip", "Dlim", "Grup", "Wlob", "Brup",
-  "Crob", "Klim", "Jlob", "Slap", "Zlap", "Drap", "Flip", "Gram", "Trop", "Brab",
-  "Krom", "Drim", "Twob", "Flam", "Slub", "Jram", "Snom", "Blip", "Drop", "Gnub",
-  "Trom", "Frab", "Srob", "Grib", "Zlim", "Snup", "Wram", "Vrom", "Clop", "Drup"
-];
-const suffixes = [
-  "waff", "plin", "jub", "lim", "dop", "bop", "vix", "chub", "gleb", "nix",
-  "leaf", "snup", "gron", "wink", "trum", "nob", "twix", "flop", "drip", "flim",
-  "snib", "grop", "kram", "nub", "slim", "blop", "clop", "drop", "bram", "grim",
-  "shup", "trip", "vlep", "plub", "snok", "grib", "zlim", "twop", "frub", "grok",
-  "splop", "cram", "krom", "blik", "zrup", "pran", "smog", "jib", "drek", "klip",
-  "swib", "wrop", "vram", "plug", "plam", "blob", "slop", "knob", "sprok", "blim",
-  "trig", "drob", "slim", "crup", "klub", "frap", "twug", "vlim", "zub", "snig",
-  "flab", "grim", "knap", "zlip", "frin", "drap", "vub", "brip", "nrop", "klam",
-  "drop", "snup", "grob", "zrop", "nlim", "grup", "trom", "smab", "clip", "wram",
-  "gnum", "drup", "plop", "slub", "brab", "fron", "trub", "snob", "klob", "blob"
-];
+// 名前生成の構成
+const prefixes = ["Aqua", "Berry", "Choco", "Dino", "Echo", "Frost", "Giga", "Honey", "Icy", "Jelly"];
+const suffixes = ["bun", "leaf", "moss", "nug", "pep", "robo", "seed", "sprout", "vine", "zap"];
 
 function getRandomName() {
   const used = JSON.parse(localStorage.getItem("usedNames") || "[]");
@@ -49,11 +27,12 @@ function getTodayDateStr() {
   return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
 }
 
-function getSerialNumber() {
-  const key = "globalSerialCount";
-  const current = parseInt(localStorage.getItem(key) || "0", 10) + 1;
-  localStorage.setItem(key, current);
-  return `#${current.toString().padStart(4, "0")}`;
+function getRandomPartNumber(maxCount) {
+  return Math.floor(Math.random() * maxCount) + 1;
+}
+
+function getPartPath(folder, number) {
+  return `/assets/${folder}/${folder}${number}.png`;
 }
 
 function getTypeFromBodyNumber(n) {
@@ -68,15 +47,22 @@ function getTypeFromBodyNumber(n) {
   return "unknown";
 }
 
-function getRandomPartNumber(maxCount) {
-  return Math.floor(Math.random() * maxCount) + 1;
+// Firestoreシリアル番号取得＆更新
+async function getNextSerialNumber() {
+  const docRef = window.doc(window.db, "serials/globalCount");
+  const docSnap = await window.getDoc(docRef);
+
+  let current = 0;
+  if (docSnap.exists()) {
+    current = docSnap.data().count || 0;
+  }
+
+  const newCount = current + 1;
+  await window.setDoc(docRef, { count: newCount });
+  return `#${newCount.toString().padStart(4, "0")}`;
 }
 
-function getPartPath(folder, number) {
-  return `/assets/${folder}/${folder}${number}.png`;
-}
-
-function generatePixelArt() {
+async function generatePixelArt() {
   const canvas = document.getElementById("pixelCanvas");
   const ctx = canvas.getContext("2d");
 
@@ -91,13 +77,12 @@ function generatePixelArt() {
 
   const bodyNum = getRandomPartNumber(139);
   const headNum = getRandomPartNumber(76);
-   // ✅ 条件付きeye画像選択
-   let eyeNum;
-   if (bodyNum >= 128 && bodyNum <= 139) {
-     eyeNum = Math.floor(Math.random() * (25 - 19 + 1)) + 19; // eye19〜25
-   } else {
-     eyeNum = getRandomPartNumber(25);
-   }
+  let eyeNum;
+  if (bodyNum >= 128 && bodyNum <= 139) {
+    eyeNum = Math.floor(Math.random() * (25 - 19 + 1)) + 19;
+  } else {
+    eyeNum = getRandomPartNumber(25);
+  }
 
   const body = new Image();
   const head = new Image();
@@ -109,8 +94,8 @@ function generatePixelArt() {
 
   const name = getRandomName();
   const today = getTodayDateStr();
-  const serial = getSerialNumber();
   const type = getTypeFromBodyNumber(bodyNum);
+  const serial = await getNextSerialNumber();
 
   document.getElementById("characterName").innerHTML = `<span class="label">name /</span><span class="value">${name}</span>`;
   document.getElementById("generatedDate").innerHTML = `<span class="label">date /</span><span class="value">${today}</span>`;
@@ -160,7 +145,11 @@ function copyPostText() {
   const serial = document.getElementById("serialNumber").textContent;
   const tags = document.getElementById("hashtagBlock").textContent;
 
-  const templateText = `${name}\n${date}\n${type}\n${serial}\n${tags}`;
+  const templateText = `${name}
+${date}
+${type}
+${serial}
+${tags}`;
   navigator.clipboard.writeText(templateText).then(() => {
     alert("Instagram投稿用のテキストをコピーしました！\n\n画像を長押しして保存してください。");
   });
