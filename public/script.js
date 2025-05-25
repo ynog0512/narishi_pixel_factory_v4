@@ -64,6 +64,7 @@ function getTypeFromBodyNumber(n) {
   if (n >= 77 && n <= 94) return "carrot";
   if (n >= 95 && n <= 110) return "pumpkin";
   if (n >= 111 && n <= 127) return "turnip";
+  if (n >= 128 && n <= 139) return "Welsh onion";
   return "unknown";
 }
 
@@ -90,7 +91,13 @@ function generatePixelArt() {
 
   const bodyNum = getRandomPartNumber(139);
   const headNum = getRandomPartNumber(76);
-  const eyeNum = getRandomPartNumber(25);
+   // ✅ 条件付きeye画像選択
+   let eyeNum;
+   if (bodyNum >= 128 && bodyNum <= 139) {
+     eyeNum = Math.floor(Math.random() * (25 - 19 + 1)) + 19; // eye19〜25
+   } else {
+     eyeNum = getRandomPartNumber(25);
+   }
 
   const body = new Image();
   const head = new Image();
