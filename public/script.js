@@ -1,11 +1,55 @@
 // 名前生成の構成
-const prefixes = ["Aqua", "Berry", "Choco", "Dino", "Echo", "Frost", "Giga", "Honey", "Icy", "Jelly"];
-const suffixes = ["bun", "leaf", "moss", "nug", "pep", "robo", "seed", "sprout", "vine", "zap"];
+const prefixes = ["Zog", "Ble", "Rib", "Tru", "Cud", "Nog", "Plix", "Frub", "Snar", "Jib",
+  "Brum", "Glim", "Wob", "Dro", "Trop", "Vib", "Flim", "Drub", "Glop", "Nek",
+  "Spro", "Zub", "Klim", "Grib", "Vrop", "Snub", "Wlim", "Nop", "Crub", "Jub",
+  "Grop", "Twib", "Thrum", "Plob", "Krop", "Frop", "Brib", "Swob", "Grum", "Clip",
+  "Blub", "Snib", "Plum", "Trob", "Grob", "Drob", "Flub", "Nub", "Zlim", "Twop",
+  "Vlim", "Jrip", "Slom", "Crip", "Thob", "Wrop", "Zrip", "Klom", "Blob", "Frim",
+  "Grib", "Zrom", "Blam", "Twim", "Snim", "Plip", "Dlim", "Grup", "Wlob", "Brup",
+  "Crob", "Klim", "Jlob", "Slap", "Zlap", "Drap", "Flip", "Gram", "Trop", "Brab",
+  "Krom", "Drim", "Twob", "Flam", "Slub", "Jram", "Snom", "Blip", "Drop", "Gnub",
+  "Trom", "Frab", "Srob", "Grib", "Zlim", "Snup", "Wram", "Vrom", "Clop", "Drup"];
 
-function getRandomName() {
-  const used = JSON.parse(localStorage.getItem("usedNames") || "[]");
+  const suffixes = ["waff", "plin", "jub", "lim", "dop", "bop", "vix", "chub", "gleb", "nix",
+    "leaf", "snup", "gron", "wink", "trum", "nob", "twix", "flop", "drip", "flim",
+    "snib", "grop", "kram", "nub", "slim", "blop", "clop", "drop", "bram", "grim",
+    "shup", "trip", "vlep", "plub", "snok", "grib", "zlim", "twop", "frub", "grok",
+    "splop", "cram", "krom", "blik", "zrup", "pran", "smog", "jib", "drek", "klip",
+    "swib", "wrop", "vram", "plug", "plam", "blob", "slop", "knob", "sprok", "blim",
+    "trig", "drob", "slim", "crup", "klub", "frap", "twug", "vlim", "zub", "snig",
+    "flab", "grim", "knap", "zlip", "frin", "drap", "vub", "brip", "nrop", "klam",
+    "drop", "snup", "grob", "zrop", "nlim", "grup", "trom", "smab", "clip", "wram",
+    "gnum", "drup", "plop", "slub", "brab", "fron", "trub", "snob", "klob", "blob"];
+  
+
+async function getRandomName() {
+  const usedNames = [];
+  const snapshot = await window.getDocs(window.collection(window.db, "usedNames"));
+  snapshot.forEach(doc => usedNames.push(doc.data().name));
+
+  const prefixes = ["Zog", "Ble", "Rib", "Tru", "Cud", "Nog", "Plix", "Frub", "Snar", "Jib",
+    "Brum", "Glim", "Wob", "Dro", "Trop", "Vib", "Flim", "Drub", "Glop", "Nek",
+    "Spro", "Zub", "Klim", "Grib", "Vrop", "Snub", "Wlim", "Nop", "Crub", "Jub",
+    "Grop", "Twib", "Thrum", "Plob", "Krop", "Frop", "Brib", "Swob", "Grum", "Clip",
+    "Blub", "Snib", "Plum", "Trob", "Grob", "Drob", "Flub", "Nub", "Zlim", "Twop",
+    "Vlim", "Jrip", "Slom", "Crip", "Thob", "Wrop", "Zrip", "Klom", "Blob", "Frim",
+    "Grib", "Zrom", "Blam", "Twim", "Snim", "Plip", "Dlim", "Grup", "Wlob", "Brup",
+    "Crob", "Klim", "Jlob", "Slap", "Zlap", "Drap", "Flip", "Gram", "Trop", "Brab",
+    "Krom", "Drim", "Twob", "Flam", "Slub", "Jram", "Snom", "Blip", "Drop", "Gnub",
+    "Trom", "Frab", "Srob", "Grib", "Zlim", "Snup", "Wram", "Vrom", "Clop", "Drup"];
+  
+  const suffixes = ["waff", "plin", "jub", "lim", "dop", "bop", "vix", "chub", "gleb", "nix",
+    "leaf", "snup", "gron", "wink", "trum", "nob", "twix", "flop", "drip", "flim",
+    "snib", "grop", "kram", "nub", "slim", "blop", "clop", "drop", "bram", "grim",
+    "shup", "trip", "vlep", "plub", "snok", "grib", "zlim", "twop", "frub", "grok",
+    "splop", "cram", "krom", "blik", "zrup", "pran", "smog", "jib", "drek", "klip",
+    "swib", "wrop", "vram", "plug", "plam", "blob", "slop", "knob", "sprok", "blim",
+    "trig", "drob", "slim", "crup", "klub", "frap", "twug", "vlim", "zub", "snig",
+    "flab", "grim", "knap", "zlip", "frin", "drap", "vub", "brip", "nrop", "klam",
+    "drop", "snup", "grob", "zrop", "nlim", "grup", "trom", "smab", "clip", "wram",
+    "gnum", "drup", "plop", "slub", "brab", "fron", "trub", "snob", "klob", "blob"];
+  
   const max = prefixes.length * suffixes.length;
-  if (used.length >= max) return "NoMoreNames";
 
   let name;
   let tries = 0;
@@ -14,13 +58,13 @@ function getRandomName() {
     const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
     name = prefix + suffix;
     tries++;
-    if (tries > 1000) break;
-  } while (used.includes(name));
+    if (tries > 1000) return "Unnamed";
+  } while (usedNames.includes(name));
 
-  used.push(name);
-  localStorage.setItem("usedNames", JSON.stringify(used));
+  await window.addDoc(window.collection(window.db, "usedNames"), { name });
   return name;
 }
+
 
 function getTodayDateStr() {
   const today = new Date();
@@ -92,7 +136,7 @@ async function generatePixelArt() {
   head.src = getPartPath("head", headNum);
   eye.src = getPartPath("eye", eyeNum);
 
-  const name = getRandomName();
+  const name = await getRandomName();
   const today = getTodayDateStr();
   const type = getTypeFromBodyNumber(bodyNum);
   const serial = await getNextSerialNumber();
