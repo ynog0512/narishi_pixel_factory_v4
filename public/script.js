@@ -180,6 +180,11 @@ async function generatePixelArt() {
   body.onload = onLoad;
   head.onload = onLoad;
   eye.onload = onLoad;
+
+  console.log("🧩 body:", body.src);
+  console.log("🧩 head:", head.src);
+  console.log("🧩 eye:", eye.src);
+
 }
 
 function copyPostText() {
