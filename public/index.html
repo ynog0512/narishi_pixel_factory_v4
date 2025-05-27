@@ -16,7 +16,17 @@
 <!-- Firebase Firestore を使うために下記を追加 -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+  import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBRu_AJNnUsqrbSmoLkbrCSGMlQbsS4T6Q",
@@ -31,10 +41,13 @@
   const db = getFirestore(app);
 
   // グローバルに使えるようにする
-  window.db = db;
+  window.db = getFirestore(app);
   window.collection = collection;
   window.addDoc = addDoc;
   window.getDocs = getDocs;
+  window.doc = doc;
+  window.getDoc = getDoc;
+  window.setDoc = setDoc;
 </script>
 
 <body>
