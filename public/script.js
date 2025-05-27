@@ -91,7 +91,7 @@ function getTypeFromBodyNumber(n) {
   return "unknown";
 }
 
-// Firestoreシリアル番号取得＆更新
+// Firestoreシリアル番号取得＆更新データ
 async function getNextSerialNumber() {
   const docRef = window.doc(window.db, "serials/globalCount");
   const docSnap = await window.getDoc(docRef);
