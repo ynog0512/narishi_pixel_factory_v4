@@ -121,26 +121,39 @@ async function generatePixelArt() {
 
   const bodyNum = getRandomPartNumber(139);
   const headNum = getRandomPartNumber(76);
-  let eyeNum;
-  if (bodyNum >= 128 && bodyNum <= 139) {
-    eyeNum = Math.floor(Math.random() * (25 - 19 + 1)) + 19;
-  } else {
-    eyeNum = getRandomPartNumber(25);
-  }
+  const eyeNum = (bodyNum >= 128 && bodyNum <= 139)
+    ? Math.floor(Math.random() * (25 - 19 + 1)) + 19
+    : getRandomPartNumber(25);
 
-  const body = new Image();
-  const head = new Image();
-  const eye = new Image();
+  const bodyPath = getPartPath("body", bodyNum);
+  const headPath = getPartPath("head", headNum);
+  const eyePath = getPartPath("eye", eyeNum);
 
-  body.src = getPartPath("body", bodyNum);
-  head.src = getPartPath("head", headNum);
-  eye.src = getPartPath("eye", eyeNum);
+  console.log("🧩 body:", bodyPath);
+  console.log("🧩 head:", headPath);
+  console.log("🧩 eye:", eyePath);
 
+  // 画像読み込みをPromiseで待つ
+  const body = await loadImage(bodyPath);
+  const head = await loadImage(headPath);
+  const eye = await loadImage(eyePath);
+
+  // Firebase用データ
   const name = await getRandomName();
   const today = getTodayDateStr();
   const type = getTypeFromBodyNumber(bodyNum);
   const serial = await getNextSerialNumber();
 
+  // 描画
+  ctx.drawImage(body, margin, margin, drawSize, drawSize);
+  ctx.drawImage(head, margin, margin, drawSize, drawSize);
+  ctx.drawImage(eye, margin, margin, drawSize, drawSize);
+
+  const img = document.getElementById("previewImage");
+  img.src = canvas.toDataURL("image/jpeg", 0.92);
+  img.style.display = "block";
+
+  // 情報表示
   document.getElementById("characterName").innerHTML = `<span class="label">name /</span><span class="value">${name}</span>`;
   document.getElementById("generatedDate").innerHTML = `<span class="label">date /</span><span class="value">${today}</span>`;
   document.getElementById("serialNumber").innerHTML = `<span class="label">serial /</span><span class="value">${serial}</span>`;
@@ -148,44 +161,32 @@ async function generatePixelArt() {
   document.getElementById("hashtagBlock").textContent =
     `#🍅今日のピクセル野菜🍅  #ちょこっと農業 #ちょこ農 #ピクセルファーム #しもつけ市の野菜 #ピクセル野菜 #NFT農園  #pixelart #8bit #cutepixelart #nftart #digitalcollectible #indiecreator`;
 
-  let loaded = 0;
-  const onLoad = () => {
-    loaded++;
-    if (loaded === 3) {
-      ctx.drawImage(body, margin, margin, drawSize, drawSize);
-      ctx.drawImage(head, margin, margin, drawSize, drawSize);
-      ctx.drawImage(eye, margin, margin, drawSize, drawSize);
-
-      const img = document.getElementById("previewImage");
-      img.src = canvas.toDataURL("image/jpeg", 0.92);
-      img.style.display = "block";
-
-      // Firestore に保存
-      if (window.db && window.addDoc && window.collection) {
-        window.addDoc(window.collection(window.db, "zukan"), {
-          name,
-          date: today,
-          serial,
-          type,
-          image: img.src
-        }).then(() => {
-          console.log("✅ Firestoreに保存完了");
-        }).catch((error) => {
-          console.error("❌ Firestore保存失敗:", error);
-        });
-      }
-    }
-  };
-
-  body.onload = onLoad;
-  head.onload = onLoad;
-  eye.onload = onLoad;
-
-  console.log("🧩 body:", body.src);
-  console.log("🧩 head:", head.src);
-  console.log("🧩 eye:", eye.src);
-
+  // Firestore 保存
+  if (window.db && window.addDoc && window.collection) {
+    window.addDoc(window.collection(window.db, "zukan"), {
+      name,
+      date: today,
+      serial,
+      type,
+      image: img.src
+    }).then(() => {
+      console.log("✅ Firestoreに保存完了");
+    }).catch((error) => {
+      console.error("❌ Firestore保存失敗:", error);
+    });
+  }
 }
+
+// Image読み込みをPromiseで待つ関数
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = src;
+  });
+}
+
 
 function copyPostText() {
   const name = document.getElementById("characterName").textContent;
