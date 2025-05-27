@@ -13,10 +13,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
 </head>
 
-<!-- Firebase SDK 読み込み＆初期化 -->
+<!-- Firebase Firestore を使うために下記を追加 -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBRu_AJNnUsqrbSmoLkbrCSGMlQbsS4T6Q",
@@ -29,9 +29,12 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+
+  // グローバルに使えるようにする
   window.db = db;
-  window.addDoc = addDoc;
   window.collection = collection;
+  window.addDoc = addDoc;
+  window.getDocs = getDocs;
 </script>
 
 <body>
