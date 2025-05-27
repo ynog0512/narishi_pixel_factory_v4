@@ -17,7 +17,7 @@
   <!-- Firebase SDK（CDN） -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, orderBy, limit, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBRu_AJNnUsqrbSmoLkbrCSGMlQbsS4T6Q",
@@ -36,12 +36,16 @@
     window.query = query;
     window.orderBy = orderBy;
     window.limit = limit;
+    window.deleteDoc = deleteDoc;
+    window.doc = doc;
+    window.setDoc = setDoc;
   </script>
 </head>
 <body>
   <h1>マイピクセル野菜図鑑</h1>
   <div class="button-group">
     <a href="index.html">← 戻る</a>
+    <button id="resetButton">図鑑をリセット</button>
   </div>
 
   <div class="switch-buttons">
@@ -143,6 +147,38 @@
     }
 
     renderView("type");
+
+    document.getElementById("resetButton").addEventListener("click", async () => {
+  if (!confirm("図鑑・シリアル・名前をすべてリセットします。よろしいですか？")) return;
+
+  const db = window.db;
+  const col = window.collection;
+
+  try {
+    // zukan削除
+    const zukanSnap = await window.getDocs(col(db, "zukan"));
+    for (const doc of zukanSnap.docs) {
+      await window.deleteDoc(doc.ref);
+    }
+
+    // usedNames削除
+    const namesSnap = await window.getDocs(col(db, "usedNames"));
+    for (const doc of namesSnap.docs) {
+      await window.deleteDoc(doc.ref);
+    }
+
+    // serialリセット
+    const serialRef = window.doc(db, "serials", "globalCount");
+    await window.setDoc(serialRef, { count: 0 });
+
+    alert("図鑑・名前・シリアルをリセットしました！");
+    location.reload();
+  } catch (err) {
+    console.error("リセット失敗:", err);
+    alert("リセット中にエラーが発生しました。");
+  }
+});
+
   </script>
 </body>
 </html>
