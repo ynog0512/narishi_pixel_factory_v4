@@ -76,7 +76,8 @@ function getRandomPartNumber(maxCount) {
 }
 
 function getPartPath(folder, number) {
-  return `/assets/${folder}/${folder}${number}.png`;
+  // Use relative paths so the app works when hosted in a subdirectory
+  return `assets/${folder}/${folder}${number}.png`;
 }
 
 function getTypeFromBodyNumber(n) {
